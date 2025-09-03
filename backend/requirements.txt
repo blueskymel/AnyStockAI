@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pydantic
+sqlalchemy
+azure-functions
+azure-identity
+azure-keyvault-secrets
+azure-storage-blob
+signalrcore

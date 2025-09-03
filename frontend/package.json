@@ -1,0 +1,32 @@
+{
+  "name": "anystockai-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@microsoft/signalr": "^7.0.14",
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "ajv": "^6.12.6",
+    "ajv-keywords": "^3.5.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "^5.0.1",
+    "typescript": "^5.0.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
