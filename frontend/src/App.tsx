@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 // import connection from './signalr';
 // Load backend URL from config
 import backendConfig from './config';
+import './App.css';
 
 function App() {
   const [symbol, setSymbol] = useState('');
@@ -43,37 +44,44 @@ function App() {
   }, []);
 
   return (
-    <div>
-      <h1>AnyStockAI: ASX Tracker</h1>
-      <input value={symbol} onChange={e => setSymbol(e.target.value)} placeholder="ASX Symbol" />
-      <button onClick={fetchSignal}>Get Signal</button>
-      <button onClick={fetchHistory} style={{marginLeft: '1em'}}>Show History</button>
+    <div className="app-container">
+      <h1 className="app-title">AnyStockAI: ASX Tracker</h1>
+      <div className="input-row">
+        <input className="symbol-input" value={symbol} onChange={e => setSymbol(e.target.value)} placeholder="ASX Symbol" />
+        <button className="action-btn" onClick={fetchSignal}>Get Signal</button>
+        <button className="action-btn" onClick={fetchHistory} style={{marginLeft: '1em'}}>Show History</button>
+      </div>
       {signal && (
-        <div>
-          <p>Buy: {signal.buy_signal ? 'Yes' : 'No'}</p>
-          <p>Sell: {signal.sell_signal ? 'Yes' : 'No'}</p>
-          <p>Confidence: {signal.confidence}</p>
-          <p>Current Price: {signal.current_price !== undefined && signal.current_price !== null ? signal.current_price : 'N/A'}</p>
-          <p>Open Price: {signal.open_price !== undefined && signal.open_price !== null ? signal.open_price : 'N/A'}</p>
-          <p>High Price: {signal.high_price !== undefined && signal.high_price !== null ? signal.high_price : 'N/A'}</p>
-          <p>Low Price: {signal.low_price !== undefined && signal.low_price !== null ? signal.low_price : 'N/A'}</p>
+        <div className="signal-card">
+          <h2>Latest Signal</h2>
+          <div className="signal-details">
+            <span><strong>Buy:</strong> {signal.buy_signal ? 'Yes' : 'No'}</span>
+            <span><strong>Sell:</strong> {signal.sell_signal ? 'Yes' : 'No'}</span>
+            <span><strong>Confidence:</strong> {signal.confidence}</span>
+            <span><strong>Current Price:</strong> {signal.current_price !== undefined && signal.current_price !== null ? signal.current_price : 'N/A'}</span>
+            <span><strong>Open Price:</strong> {signal.open_price !== undefined && signal.open_price !== null ? signal.open_price : 'N/A'}</span>
+            <span><strong>High Price:</strong> {signal.high_price !== undefined && signal.high_price !== null ? signal.high_price : 'N/A'}</span>
+            <span><strong>Low Price:</strong> {signal.low_price !== undefined && signal.low_price !== null ? signal.low_price : 'N/A'}</span>
+          </div>
         </div>
       )}
       {realtimeSignal && (
-        <div style={{background: '#e0ffe0', marginTop: '1em', padding: '1em'}}>
+        <div className="realtime-card">
           <h2>Real-Time Signal Update</h2>
-          <p>Symbol: {realtimeSignal.symbol}</p>
-          <p>Buy: {realtimeSignal.buy_signal ? 'Yes' : 'No'}</p>
-          <p>Sell: {realtimeSignal.sell_signal ? 'Yes' : 'No'}</p>
-          <p>Confidence: {realtimeSignal.confidence}</p>
-          <p>Current Price: {realtimeSignal.current_price !== undefined && realtimeSignal.current_price !== null ? realtimeSignal.current_price : 'N/A'}</p>
-          <p>Timestamp: {realtimeSignal.timestamp}</p>
+          <div className="signal-details">
+            <span><strong>Symbol:</strong> {realtimeSignal.symbol}</span>
+            <span><strong>Buy:</strong> {realtimeSignal.buy_signal ? 'Yes' : 'No'}</span>
+            <span><strong>Sell:</strong> {realtimeSignal.sell_signal ? 'Yes' : 'No'}</span>
+            <span><strong>Confidence:</strong> {realtimeSignal.confidence}</span>
+            <span><strong>Current Price:</strong> {realtimeSignal.current_price !== undefined && realtimeSignal.current_price !== null ? realtimeSignal.current_price : 'N/A'}</span>
+            <span><strong>Timestamp:</strong> {realtimeSignal.timestamp}</span>
+          </div>
         </div>
       )}
       {priceHistory.length > 0 && (
-        <div style={{marginTop: '2em'}}>
+        <div className="history-section">
           <h2>Historical Price Data (Yahoo Finance)</h2>
-          <table border={1} cellPadding={6}>
+          <table className="styled-table">
             <thead>
               <tr>
                 <th>Timestamp</th>
@@ -100,9 +108,9 @@ function App() {
         </div>
       )}
       {history.length > 0 && (
-        <div style={{marginTop: '2em'}}>
+        <div className="history-section">
           <h2>Signal History</h2>
-          <table border={1} cellPadding={6}>
+          <table className="styled-table">
             <thead>
               <tr>
                 <th>Symbol</th>
