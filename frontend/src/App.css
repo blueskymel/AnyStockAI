@@ -97,6 +97,31 @@
   background: #e3f2fd;
 }
 
+.autocomplete-list {
+  position: absolute;
+  top: 38px;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #bdbdbd;
+  border-radius: 0 0 6px 6px;
+  max-height: 180px;
+  overflow-y: auto;
+  z-index: 10;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  box-shadow: 0 2px 8px rgba(33,150,243,0.08);
+}
+.autocomplete-list li {
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.autocomplete-list li:hover {
+  background: #e3f2fd;
+}
+
 @media (max-width: 700px) {
   .app-container {
     padding: 12px 4px;

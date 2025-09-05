@@ -3,6 +3,7 @@
 
 # --- Imports ---
 from fastapi import FastAPI, Query, Depends, WebSocket, WebSocketDisconnect, Body
+from fastapi import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from db import SessionLocal, StockSignal
@@ -73,20 +74,19 @@ def predict_signal(symbol: str = Query(..., description="ASX stock symbol")):
     low_price = None
     try:
         hist = data.history(period="1d")
+        if hist.empty:
+            raise ValueError("No data found for symbol")
         price = hist['Close'].iloc[-1]
         open_price = hist['Open'].iloc[-1]
         high_price = hist['High'].iloc[-1]
         low_price = hist['Low'].iloc[-1]
     except Exception:
-        price = None
-        open_price = None
-        high_price = None
-        low_price = None
-    # Fetch last 30 days of price data for ML model
+        raise HTTPException(status_code=404, detail=f"Stock symbol '{symbol}' not found or has no data.")
+    # Fetch last 1 year of price data for ML model
     price_data = []
     try:
-        hist_30 = data.history(period="30d")
-        for idx, row in hist_30.iterrows():
+        hist_long = data.history(period="1y")
+        for idx, row in hist_long.iterrows():
             price_data.append({
                 "timestamp": idx.isoformat(),
                 "open": row["Open"],

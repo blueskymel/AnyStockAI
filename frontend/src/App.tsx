@@ -7,6 +7,8 @@ import './App.css';
 
 function App() {
   const [symbol, setSymbol] = useState('');
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [allSymbols, setAllSymbols] = useState<string[]>([]);
   const [signal, setSignal] = useState<any>(null);
   const [realtimeSignal, setRealtimeSignal] = useState<any>(null);
   const [history, setHistory] = useState<any[]>([]);
@@ -25,6 +27,10 @@ function App() {
   };
 
   useEffect(() => {
+    // Fetch ASX symbols from public JSON file
+    fetch('/asx_symbols.json')
+      .then(res => res.json())
+      .then(data => setAllSymbols(data));
     // Connect to FastAPI WebSocket for real-time signals
     const ws = new WebSocket(`${backendConfig.BACKEND_URL.replace(/^http/, 'ws')}/ws/signals`);
     ws.onmessage = (event) => {
@@ -43,11 +49,43 @@ function App() {
     };
   }, []);
 
+  const handleSymbolChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.toUpperCase();
+    setSymbol(value);
+    if (value.length > 0) {
+      // Substring match, but prioritize prefix matches
+      const filtered = allSymbols.filter(s => s.includes(value) && s !== value);
+      // Sort: prefix matches first, then others
+      filtered.sort((a, b) => {
+        const aStarts = a.startsWith(value) ? -1 : 0;
+        const bStarts = b.startsWith(value) ? -1 : 0;
+        return aStarts - bStarts || a.localeCompare(b);
+      });
+      setSuggestions(filtered.slice(0, 8));
+    } else {
+      setSuggestions([]);
+    }
+  };
+
+  const handleSuggestionClick = (s: string) => {
+    setSymbol(s);
+    setSuggestions([]);
+  };
+
   return (
     <div className="app-container">
       <h1 className="app-title">AnyStockAI: ASX Tracker</h1>
       <div className="input-row">
-        <input className="symbol-input" value={symbol} onChange={e => setSymbol(e.target.value)} placeholder="ASX Symbol" />
+        <div style={{ position: 'relative', width: 200 }}>
+          <input className="symbol-input" value={symbol} onChange={handleSymbolChange} placeholder="ASX Symbol" autoComplete="off" />
+          {suggestions.length > 0 && (
+            <ul className="autocomplete-list">
+              {suggestions.map(s => (
+                <li key={s} onClick={() => handleSuggestionClick(s)}>{s}</li>
+              ))}
+            </ul>
+          )}
+        </div>
         <button className="action-btn" onClick={fetchSignal}>Get Signal</button>
         <button className="action-btn" onClick={fetchHistory} style={{marginLeft: '1em'}}>Show History</button>
       </div>
