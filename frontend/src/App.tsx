@@ -14,6 +14,7 @@ function App() {
   const [history, setHistory] = useState<any[]>([]);
   // priceHistory is for Yahoo Finance historical prices, not signal history
   const [priceHistory, setPriceHistory] = useState<any[]>([]);
+  const [berkshireHoldings, setBerkshireHoldings] = useState<any[]>([]);
   const fetchHistory = async () => {
     // Fetch signal history from backend DB
     const res = await fetch(`${backendConfig.BACKEND_URL}/signal_history?symbol=${symbol}`);
@@ -31,6 +32,10 @@ function App() {
     fetch('/asx_symbols.json')
       .then(res => res.json())
       .then(data => setAllSymbols(data));
+    // Fetch Berkshire 13F holdings
+    fetch('/berkshire_13f.json')
+      .then(res => res.json())
+      .then(data => setBerkshireHoldings(data));
     // Connect to FastAPI WebSocket for real-time signals
     const ws = new WebSocket(`${backendConfig.BACKEND_URL.replace(/^http/, 'ws')}/ws/signals`);
     ws.onmessage = (event) => {
@@ -95,6 +100,7 @@ function App() {
           <div className="signal-details">
             <span><strong>Buy:</strong> {signal.buy_signal ? 'Yes' : 'No'}</span>
             <span><strong>Sell:</strong> {signal.sell_signal ? 'Yes' : 'No'}</span>
+            <span><strong>Hold:</strong> {signal.hold_signal ? 'Yes' : 'No'}</span>
             <span><strong>Confidence:</strong> {signal.confidence}</span>
             <span><strong>Current Price:</strong> {signal.current_price !== undefined && signal.current_price !== null ? signal.current_price : 'N/A'}</span>
             <span><strong>Open Price:</strong> {signal.open_price !== undefined && signal.open_price !== null ? signal.open_price : 'N/A'}</span>
@@ -110,6 +116,7 @@ function App() {
             <span><strong>Symbol:</strong> {realtimeSignal.symbol}</span>
             <span><strong>Buy:</strong> {realtimeSignal.buy_signal ? 'Yes' : 'No'}</span>
             <span><strong>Sell:</strong> {realtimeSignal.sell_signal ? 'Yes' : 'No'}</span>
+            <span><strong>Hold:</strong> {realtimeSignal.hold_signal ? 'Yes' : 'No'}</span>
             <span><strong>Confidence:</strong> {realtimeSignal.confidence}</span>
             <span><strong>Current Price:</strong> {realtimeSignal.current_price !== undefined && realtimeSignal.current_price !== null ? realtimeSignal.current_price : 'N/A'}</span>
             <span><strong>Timestamp:</strong> {realtimeSignal.timestamp}</span>
@@ -155,6 +162,7 @@ function App() {
                 <th>Timestamp</th>
                 <th>Buy</th>
                 <th>Sell</th>
+                <th>Hold</th>
                 <th>Confidence</th>
                 <th>Price</th>
                 <th>Open</th>
@@ -169,6 +177,7 @@ function App() {
                   <td>{h.timestamp}</td>
                   <td>{h.buy_signal ? 'Yes' : 'No'}</td>
                   <td>{h.sell_signal ? 'Yes' : 'No'}</td>
+                  <td>{h.hold_signal ? 'Yes' : 'No'}</td>
                   <td>{h.confidence}</td>
                   <td>{h.current_price !== undefined && h.current_price !== null ? h.current_price : 'N/A'}</td>
                   <td>{h.open_price !== undefined && h.open_price !== null ? h.open_price : 'N/A'}</td>
@@ -180,6 +189,29 @@ function App() {
           </table>
         </div>
       )}
+      <div className="berkshire-section">
+        <h2>Berkshire Hathaway Latest 13F Holdings</h2>
+        <table className="styled-table">
+          <thead>
+            <tr>
+              <th>Symbol</th>
+              <th>Name</th>
+              <th>Shares</th>
+              <th>% of Portfolio</th>
+            </tr>
+          </thead>
+          <tbody>
+            {berkshireHoldings.map((h, i) => (
+              <tr key={i}>
+                <td>{h.symbol}</td>
+                <td>{h.name}</td>
+                <td>{h.shares.toLocaleString()}</td>
+                <td>{h.percent_portfolio}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

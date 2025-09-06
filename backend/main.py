@@ -28,7 +28,8 @@ class SignalResponse(BaseModel):
     symbol: str
     buy_signal: bool
     sell_signal: bool
-    confidence: float
+    hold_signal: bool
+    confidence: Optional[float] = None
     timestamp: str
     current_price: float = None
     open_price: float = None
@@ -106,6 +107,7 @@ def predict_signal(symbol: str = Query(..., description="ASX stock symbol")):
         symbol=symbol,
         buy_signal=int(response.buy_signal),
         sell_signal=int(response.sell_signal),
+        hold_signal=int(response.hold_signal),
         confidence=response.confidence,
         timestamp=datetime.datetime.fromisoformat(response.timestamp),
         current_price=price,
@@ -136,6 +138,7 @@ def get_signal_history(symbol: str):
             "timestamp": s.timestamp.isoformat() if s.timestamp else None,
             "buy_signal": bool(s.buy_signal),
             "sell_signal": bool(s.sell_signal),
+            "hold_signal": bool(s.hold_signal) if hasattr(s, 'hold_signal') else False,
             "confidence": s.confidence,
             "current_price": s.current_price,
             "open_price": s.open_price,

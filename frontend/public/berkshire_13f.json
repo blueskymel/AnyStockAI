@@ -1,0 +1,12 @@
+[
+  {"symbol": "AAPL", "name": "Apple Inc.", "shares": 790000000, "percent_portfolio": 50.0},
+  {"symbol": "BAC", "name": "Bank of America Corp.", "shares": 1010000000, "percent_portfolio": 8.5},
+  {"symbol": "AXP", "name": "American Express Co.", "shares": 151000000, "percent_portfolio": 7.5},
+  {"symbol": "KO", "name": "Coca-Cola Co.", "shares": 400000000, "percent_portfolio": 7.0},
+  {"symbol": "CVX", "name": "Chevron Corp.", "shares": 123000000, "percent_portfolio": 6.5},
+  {"symbol": "OXY", "name": "Occidental Petroleum Corp.", "shares": 250000000, "percent_portfolio": 4.0},
+  {"symbol": "KHC", "name": "Kraft Heinz Co.", "shares": 32500000, "percent_portfolio": 1.5},
+  {"symbol": "MCO", "name": "Moody's Corp.", "shares": 24000000, "percent_portfolio": 2.0},
+  {"symbol": "DVA", "name": "DaVita Inc.", "shares": 36000000, "percent_portfolio": 1.0},
+  {"symbol": "VRSN", "name": "VeriSign Inc.", "shares": 12500000, "percent_portfolio": 0.8}
+]

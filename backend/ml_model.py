@@ -9,17 +9,19 @@ def predict_buy_sell(symbol: str, price_data: list) -> dict:
 
     # If no price data, fallback to random
     if not price_data or len(price_data) < 20:
-        buy_signal = random.choice([True, False])
-        sell_signal = not buy_signal
-        confidence = random.uniform(0.7, 0.99)
+        label = random.choice([-1, 0, 1])  # -1: sell, 0: hold, 1: buy
+        buy_signal = label == 1
+        sell_signal = label == -1
+        hold_signal = label == 0
+        confidence = None  # No real confidence available
         return {
             "symbol": symbol,
             "buy_signal": buy_signal,
             "sell_signal": sell_signal,
+            "hold_signal": hold_signal,
             "confidence": confidence,
             "timestamp": datetime.datetime.utcnow().isoformat()
         }
-
 
     # Create a DataFrame from price_data
     df = pd.DataFrame(price_data)
@@ -46,53 +48,49 @@ def predict_buy_sell(symbol: str, price_data: list) -> dict:
     # Feature: short vs long MA
     df['ma_diff'] = df['ma_5'] - df['ma_20']
 
-    # Generate synthetic labels: buy if ma_diff > 0, sell otherwise
-    df['label'] = (df['ma_diff'] > 0).astype(int)
-
-    # Features to use
+    # Use trained model for prediction and confidence if available
+    import joblib
+    import os
+    model_path = os.path.join(os.path.dirname(__file__), 'best_model.pkl')
     feature_cols = [
         'pct_change', 'ma_5', 'ma_10', 'ma_20', 'ma_50',
         'bb_upper', 'bb_lower', 'rsi', 'vol_pct_change', 'ma_diff'
     ]
-    # Train/test split
-    X = df[feature_cols][:-1]
-    y = df['label'][:-1]
     X_pred = df[feature_cols].iloc[[-1]]
-
-
-    # Try to load a pre-trained model (RandomForest/XGBoost)
-    import joblib
-    import os
-    model_path = os.path.join(os.path.dirname(__file__), 'best_model.pkl')
     if os.path.exists(model_path):
         try:
             model = joblib.load(model_path)
-            prob = model.predict_proba(X_pred)[0][1]
-            buy_signal = prob > 0.5
-            sell_signal = not buy_signal
-            confidence = float(prob) if buy_signal else 1.0 - float(prob)
+            proba = model.predict_proba(X_pred)[0]
+            pred_label = model.predict(X_pred)[0]
+            last_label = int(pred_label)
+            confidence = proba[model.classes_.tolist().index(last_label)]
         except Exception:
-            buy_signal = random.choice([True, False])
-            sell_signal = not buy_signal
-            confidence = random.uniform(0.7, 0.99)
+            # fallback: use ma_diff
+            if df['ma_diff'].iloc[-1] > 0.01:
+                last_label = 1
+            elif df['ma_diff'].iloc[-1] < -0.01:
+                last_label = -1
+            else:
+                last_label = 0
+            confidence = 0
     else:
-        # Fallback: train simple logistic regression on the fly
-        model = LogisticRegression()
-        try:
-            model.fit(X, y)
-            prob = model.predict_proba(X_pred)[0][1]
-            buy_signal = prob > 0.5
-            sell_signal = not buy_signal
-            confidence = float(prob) if buy_signal else 1.0 - float(prob)
-        except Exception:
-            buy_signal = random.choice([True, False])
-            sell_signal = not buy_signal
-            confidence = random.uniform(0.7, 0.99)
+        # fallback: use ma_diff
+        if df['ma_diff'].iloc[-1] > 0.01:
+            last_label = 1
+        elif df['ma_diff'].iloc[-1] < -0.01:
+            last_label = -1
+        else:
+            last_label = 0
+        confidence = 0
+    buy_signal = last_label == 1
+    sell_signal = last_label == -1
+    hold_signal = last_label == 0
 
     return {
         "symbol": symbol,
         "buy_signal": buy_signal,
         "sell_signal": sell_signal,
+        "hold_signal": hold_signal,
         "confidence": confidence,
         "timestamp": datetime.datetime.utcnow().isoformat()
     }

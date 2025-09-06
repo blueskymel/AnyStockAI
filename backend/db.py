@@ -18,6 +18,7 @@ class StockSignal(Base):
     symbol = Column(String, index=True)
     buy_signal = Column(Integer)
     sell_signal = Column(Integer)
+    hold_signal = Column(Integer)  # 1 if hold, 0 otherwise
     confidence = Column(Float)
     timestamp = Column(DateTime)
     current_price = Column(Float)
